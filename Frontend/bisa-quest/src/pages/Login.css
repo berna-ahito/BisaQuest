@@ -338,6 +338,105 @@ body {
   font-weight: 500;
 }
 
+/* ── Error Toast Notification ──────────────────────────────────────────────── */
+.error-toast {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  min-width: 320px;
+  max-width: 520px;
+  background: linear-gradient(135deg, #6B3E1D 0%, #4a2a12 100%);
+  border: 3px solid #e74c3c;
+  border-radius: 12px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(231, 76, 60, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.4s ease;
+}
+
+.error-toast--visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.error-toast--hidden {
+  transform: translateX(-50%) translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(-50%) translateY(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.error-toast-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.error-toast-message {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  line-height: 1.7;
+  color: #FCD765;
+  flex: 1;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.error-toast-close {
+  background: none;
+  border: 2px solid rgba(252, 215, 101, 0.3);
+  border-radius: 6px;
+  color: #FCD765;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.error-toast-close:hover {
+  background: rgba(231, 76, 60, 0.3);
+  border-color: #e74c3c;
+  color: #fff;
+}
+
+/* Progress bar for auto-dismiss */
+.error-toast::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 6px;
+  right: 6px;
+  height: 3px;
+  background: #e74c3c;
+  border-radius: 0 0 8px 8px;
+  animation: toastTimer 5s linear forwards;
+}
+
+@keyframes toastTimer {
+  from { width: calc(100% - 12px); }
+  to   { width: 0; }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .character {

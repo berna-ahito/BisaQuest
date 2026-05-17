@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import "./Login.css";
 import "./GlobalEffects.css";
 import AssetManifest from "../services/AssetManifest";
@@ -15,6 +15,28 @@ const Login = () => {
     const [nickname, setNickname] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showError, setShowError] = useState(false);
+    const errorTimerRef = useRef(null);
+
+    // Show error as a toast notification with auto-dismiss
+    const triggerError = useCallback((message) => {
+        // Clear any existing timer
+        if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+        setError(message);
+        setShowError(true);
+        errorTimerRef.current = setTimeout(() => {
+            setShowError(false);
+            // Clear the message after the fade-out animation
+            setTimeout(() => setError(""), 400);
+        }, 5000);
+    }, []);
+
+    // Cleanup timer on unmount
+    useEffect(() => {
+        return () => {
+            if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+        };
+    }, []);
     const [showAccountModal, setShowAccountModal] = useState(false);
     const [savedPlayer, setSavedPlayer] = useState(null);
 
@@ -43,10 +65,11 @@ const Login = () => {
     //Create new player 
     const handlePlayNow = async (e) => {
         e.preventDefault();
+        setShowError(false);
         setError("");
 
         if (!nickname.trim()) {
-            setError('Please enter your name to start playing!');
+            triggerError('Please enter your name to start playing!');
             return;
         }
 
@@ -57,7 +80,7 @@ const Login = () => {
             const result = await createNewPlayer(nickname.trim());
 
             if (!result.success) {
-                setError(result.error || 'Failed to create player. Please try again!');
+                triggerError(result.error || 'Failed to create player. Please try again!');
                 isCreatingPlayer.current = false;
                 return;
             }
@@ -67,7 +90,7 @@ const Login = () => {
 
         } catch (err) {
             console.error("❌ Error starting game:", err);
-            setError("Something went wrong. Please try again!");
+            triggerError("Something went wrong. Please try again!");
             isCreatingPlayer.current = false;
         } finally {
             setLoading(false);
@@ -116,13 +139,24 @@ const Login = () => {
                 <img src={AssetManifest.characters.girl} alt="Girl Character" className="character girl-character" />
             </div>
 
+            {/* Error Toast Notification */}
+            {error && (
+                <div className={`error-toast ${showError ? 'error-toast--visible' : 'error-toast--hidden'}`}>
+                    <div className="error-toast-icon">⚠️</div>
+                    <span className="error-toast-message">{error}</span>
+                    <button
+                        className="error-toast-close"
+                        onClick={() => { setShowError(false); setTimeout(() => setError(""), 400); }}
+                        aria-label="Dismiss error"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
             <div className="login-card-wrapper">
                 <div className="login-card">
                     <h1 className="login-title">BisaQuest</h1>
-
-                    {error && (
-                        <div className="error-message-box">{error}</div>
-                    )}
 
                     <p className="welcome-subtitle">
                         Sugdi ang imong adventure!
