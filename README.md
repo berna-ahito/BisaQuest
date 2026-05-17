@@ -1,4 +1,3 @@
-````markdown
 # BisaQuest — Interactive Story-Based Learning Game
 
 BisaQuest is a web-based, story-driven learning game designed to help Grade 3 students improve their reading comprehension skills. It integrates interactive quests, NPC-guided lessons, and bilingual support in English and Cebuano. The platform features a standalone learning environment for students.
