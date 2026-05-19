@@ -17,7 +17,17 @@ const ROOMS = [
   { key: "village_bedroom", label: "Kwarto", labelEn: "Bedroom",     route: "/student/bedroom" },
 ];
 
-const VillageRoomProgress = ({ currentRoomKey, npcId, npcName, introDone }) => {
+const VillageRoomProgress = ({
+  currentRoomKey,
+  npcId,
+  npcName,
+  introDone,
+  activeItem,
+  questItem,
+  showDoorChoice,
+  showPageModal,
+  showSummary,
+}) => {
   const navigate = useNavigate();
 
   const currentRoomDone = hasLibroPage("village", currentRoomKey);
@@ -25,7 +35,11 @@ const VillageRoomProgress = ({ currentRoomKey, npcId, npcName, introDone }) => {
   // Don't show anything if:
   // 1. Current room's book hasn't been collected yet
   // 2. The intro dialogues are still playing
-  if (!currentRoomDone || !introDone) return null;
+  // 3. The user is actively interacting with something (dialogue, mini-game, modals)
+  const isInteracting =
+    activeItem || questItem || showDoorChoice || showPageModal || showSummary;
+
+  if (!currentRoomDone || !introDone || isInteracting) return null;
 
   // Check all rooms
   const roomStatus = ROOMS.map((r) => ({

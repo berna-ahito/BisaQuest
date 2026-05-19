@@ -353,6 +353,11 @@ const BedroomPage = () => {
         npcId={npcId}
         npcName={npcName}
         introDone={introDone}
+        activeItem={activeItem}
+        questItem={questItem}
+        showDoorChoice={showDoorChoice}
+        showPageModal={showPageModal}
+        showSummary={showSummary}
       />
 
     </div>
