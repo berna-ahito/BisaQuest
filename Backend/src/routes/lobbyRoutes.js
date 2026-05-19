@@ -6,8 +6,6 @@ import { getLobbyProgress } from '../controllers/lobbyController.js';
 
 const router = express.Router();
 
-// Get all environment progress for a player
-// GET /api/lobby/:playerId/progress
 router.get('/:playerId/progress', getLobbyProgress);
 
 export default router;

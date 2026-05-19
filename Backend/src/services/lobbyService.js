@@ -1,6 +1,3 @@
-// services/lobbyService.js
-// UC-2.1: Retrieves per-environment progress from players table
-
 import { supabase } from '../config/supabaseClient.js';
 
 export const lobbyService = {
@@ -10,34 +7,36 @@ export const lobbyService = {
      * Reads from progress_data JSONB column in players table
      */
     async getEnvironmentProgress(playerId) {
-        const { data, error } = await supabase
-            .from('players')
-            .select('player_id, nickname, progress_data')
-            .eq('player_id', playerId)
-            .single();
+        const [{ data: player, error: playerErr }, { data: envRows, error: envErr }] = await Promise.all([
+            supabase.from('players').select('player_id, nickname').eq('player_id', playerId).single(),
+            supabase.from('player_environment_progress').select('*').eq('player_id', playerId)
+        ]);
 
-        if (error) throw error;
-        if (!data)  throw new Error('Player not found');
+        if (playerErr) throw playerErr;
+        if (!player) throw new Error('Player not found');
+        if (envErr) throw envErr;
 
-        const progress = data.progress_data || {};
+        const village = envRows?.find(r => r.environment_name === 'village');
+        const forest = envRows?.find(r => r.environment_name === 'forest');
+        const castle = envRows?.find(r => r.environment_name === 'castle');
 
         return {
-            player_id: data.player_id,
-            nickname:  data.nickname,
+            player_id: player.player_id,
+            nickname: player.nickname,
             environments: {
                 village: {
-                    progress:  progress.village_progress  || 0,
-                    completed: (progress.village_progress || 0) >= 100,
+                    progress: village?.completion_percentage || 0,
+                    completed: village?.is_completed || false,
                 },
                 forest: {
-                    progress:  progress.forest_progress   || 0,
-                    completed: (progress.forest_progress  || 0) >= 100,
-                    locked:    (progress.village_progress || 0) < 100,
+                    progress: forest?.completion_percentage || 0,
+                    completed: forest?.is_completed || false,
+                    locked: !forest?.is_unlocked,
                 },
                 castle: {
-                    progress:  progress.castle_progress   || 0,
-                    completed: (progress.castle_progress  || 0) >= 100,
-                    locked:    (progress.village_progress || 0) < 100 || (progress.forest_progress || 0) < 100,
+                    progress: castle?.completion_percentage || 0,
+                    completed: castle?.is_completed || false,
+                    locked: !castle?.is_unlocked,
                 },
             },
         };
